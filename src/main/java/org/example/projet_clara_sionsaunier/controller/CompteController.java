@@ -37,4 +37,19 @@ public class CompteController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/virement")
+    public ResponseEntity<String> virement(
+            @RequestParam Long source,
+            @RequestParam Long dest,
+            @RequestParam double montant) {
+
+        boolean ok = service.virement(source, dest, montant);
+
+        if (!ok) {
+            return ResponseEntity.badRequest().body("Virement impossible");
+        }
+
+        return ResponseEntity.ok("Virement effectué avec succès");
+    }
 }

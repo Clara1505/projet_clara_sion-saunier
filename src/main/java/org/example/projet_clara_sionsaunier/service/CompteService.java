@@ -1,9 +1,9 @@
 package org.example.projet_clara_sionsaunier.service;
 
+import jakarta.transaction.Transactional;
 import org.example.projet_clara_sionsaunier.model.Compte;
 import org.example.projet_clara_sionsaunier.repository.CompteRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -28,5 +28,28 @@ public class CompteService {
 
     public void delete(Long id) {
         repo.deleteById(id);
+    }
+
+    @Transactional
+    public boolean virement(Long idSource, Long idDest, double montant) {
+
+        Compte source = repo.findById(idSource).orElse(null);
+        Compte dest = repo.findById(idDest).orElse(null);
+
+        if (source == null || dest == null) {
+            return false;
+        }
+
+        if (!source.canDebit(montant)) {
+            return false;
+        }
+
+        source.setSolde(source.getSolde() - montant);
+        dest.setSolde(dest.getSolde() + montant);
+
+        repo.save(source);
+        repo.save(dest);
+
+        return true;
     }
 }

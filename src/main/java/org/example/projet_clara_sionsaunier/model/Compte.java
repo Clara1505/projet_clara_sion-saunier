@@ -21,4 +21,12 @@ public abstract class Compte {
 
     private double solde;
     private LocalDate dateOuverture;
+
+    public boolean canDebit(double montant) {
+        if (this instanceof CompteCourant) {
+            CompteCourant cc = (CompteCourant) this;
+            return (this.getSolde() - montant) >= -cc.getDecouvert();
+        }
+        return (this.getSolde() - montant) >= 0;
+    }
 }
