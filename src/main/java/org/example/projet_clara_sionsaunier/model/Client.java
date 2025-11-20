@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -21,6 +19,9 @@ public class Client {
     private String codePostal;
     private String ville;
     private String telephone;
+
+    @Enumerated(EnumType.STRING)
+    private TypeClient type;
 
     @ManyToOne
     @JoinColumn(name = "conseiller_id")

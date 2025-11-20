@@ -10,31 +10,41 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/client")
 public class ClientController {
-    private final ClientService service;
+    private final ClientService clientService;
 
-    public ClientController(ClientService service) { this.service = service; }
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
+    }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Client c) {
-        try {
-            return ResponseEntity.ok(service.create(c));
-        } catch (IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    public ResponseEntity<Client> create(@RequestBody Client client) {
+        return ResponseEntity.ok(clientService.create(client));
     }
 
     @GetMapping
-    public List<Client> list() { return service.list(); }
+    public ResponseEntity<List<Client>> getAll() {
+        return ResponseEntity.ok(clientService.getAll());
+    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Client> get(@PathVariable Long id) {
-        Client c = service.get(id);
-        return c == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(c);
+    public ResponseEntity<Client> getById(@PathVariable Long id) {
+        return clientService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Client> update(@PathVariable Long id, @RequestBody Client newClientData) {
+        Client updated = clientService.update(id, newClientData);
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.deleteClient(id);
+        clientService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -8,47 +8,41 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClientService {
-    private final ClientRepository clientRepo;
-    private final CarteBancaireRepository cardRepo;
+    private final ClientRepository clientRepository;
 
-    public ClientService(ClientRepository clientRepo, CarteBancaireRepository cardRepo) {
-        this.clientRepo = clientRepo;
-        this.cardRepo = cardRepo;
+    public ClientService(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
     }
 
     public Client create(Client client) {
-        if (client.getConseiller() != null) {
-            long count = clientRepo.countByConseiller(client.getConseiller());
-            if (count >= 10) {
-                throw new IllegalStateException("Ce conseiller a déjà 10 clients maximum.");
-            }
-        }
-        return clientRepo.save(client);
+        return clientRepository.save(client);
     }
 
-    public List<Client> list() {
-        return clientRepo.findAll();
+    public List<Client> getAll() {
+        return clientRepository.findAll();
     }
 
-    public Client get(Long id) {
-        return clientRepo.findById(id).orElse(null);
+    public Optional<Client> getById(Long id) {
+        return clientRepository.findById(id);
     }
 
-    @Transactional
-    public void deleteClient(Long clientId) {
-        Client c = clientRepo.findById(clientId).orElse(null);
-        if (c == null) return;
+    public Client update(Long id, Client newClientData) {
+        return clientRepository.findById(id).map(client -> {
+            client.setNom(newClientData.getNom());
+            client.setPrenom(newClientData.getPrenom());
+            client.setAdresse(newClientData.getAdresse());
+            client.setCodePostal(newClientData.getCodePostal());
+            client.setVille(newClientData.getVille());
+            client.setTelephone(newClientData.getTelephone());
+            return clientRepository.save(client);
+        }).orElse(null);
+    }
 
-        List<CarteBancaire> cards = cardRepo.findByClient(c);
-        for (CarteBancaire card : cards) {
-            card.setActive(false);
-            card.setClient(null);
-            cardRepo.save(card);
-        }
-
-        clientRepo.delete(c); // cascade removes accounts (one-to-one with orphanRemoval)
+    public void delete(Long id) {
+        clientRepository.deleteById(id);
     }
 }
