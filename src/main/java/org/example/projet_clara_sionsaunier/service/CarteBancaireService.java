@@ -2,9 +2,11 @@ package org.example.projet_clara_sionsaunier.service;
 
 import org.example.projet_clara_sionsaunier.model.CarteBancaire;
 import org.example.projet_clara_sionsaunier.repository.CarteBancaireRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class CarteBancaireService {
     private final CarteBancaireRepository repo;
 
